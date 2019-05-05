@@ -16,6 +16,9 @@ import { withStyles } from '@material-ui/core/styles';
 import CardMedia from '@material-ui/core/CardMedia';
 import HeaderAppBar from './header/HeaderAppBar'
 import FooterComponent from './footer/FooterComponent'
+import {connect} from 'react-redux'
+import produk_action from '../../actions/produk_action'
+import {addProdukToCart} from '../../actions/cart_action'
 
 const styles = theme => ({
   '@global': {
@@ -100,12 +103,21 @@ class DetailPage extends Component{
       super(props)
   }
 
-  handleBeliClick(){
+  componentDidMount(){
+    const {dispatch,match:{params}} = this.props
+    const {id}=params
+    dispatch(produk_action.readOne("no_token",id))
+
+  }
+
+  handleBeliClick(produk){
+    const {dispatch} = this.props
+    dispatch(addProdukToCart(produk))
     this.props.history.push(`/keranjang`);
   }
   
   render(){
-    const { classes } = this.props;
+    const { classes,record} = this.props;
 
     return (
       <React.Fragment>
@@ -141,11 +153,13 @@ class DetailPage extends Component{
         {/* Sidebar */}
         <Grid item xs={12} md={4}>
             <Typography variant="h6" gutterBottom>
-                Laptop Baru
+                {record.nama}
               </Typography>
-              <p>Rp 21.000</p>
-              <p><Button variant="contained" color="primary" onClick={e=>this.handleBeliClick()}>Beli</Button></p>
-              <p>This is a wider card with supporting text below as a natural lead-in to additional content.</p>
+              <p>Rp {record.harga}</p>
+              <p><Button variant="contained" color="primary" onClick={e=>this.handleBeliClick(record)}>Beli</Button></p>
+              <Typography>
+                {record.deskripsi}
+              </Typography>
             </Grid>
             {/* End sidebar */}
 
@@ -165,4 +179,12 @@ DetailPage.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(DetailPage);
+function mapStateToProps(state){
+  return {
+     record:state.produkReducer.record
+  }
+}
+
+const DetailPageContainer = connect(mapStateToProps)(DetailPage)
+
+export default withStyles(styles)(DetailPageContainer);

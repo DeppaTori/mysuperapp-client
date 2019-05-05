@@ -5,7 +5,8 @@ import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import { withStyles } from '@material-ui/core/styles';
 import Link from '@material-ui/core/Link';
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router-dom';
+import {connect} from 'react-redux';
 
 const styles = theme => ({
    
@@ -29,16 +30,20 @@ class HeaderAppBar extends Component{
 
     constructor(props){
        super(props)
-       this.handleNameClick = this.handleNameClick.bind(this)
+     
     }
 
     handleNameClick(){
       this.props.history.push(`/`);
     }
 
+    handleCartClick(){
+      this.props.history.push(`/keranjang`);
+    }
+
     render(){
 
-      const { classes } = this.props;
+      const { classes,totalHarga} = this.props;
 
       return (
           <AppBar position="static" color="default" className={classes.appBar}>
@@ -50,7 +55,10 @@ class HeaderAppBar extends Component{
               
             </Typography>
             <Button className={classes.button}>Account</Button>
-            <Button className={classes.button}>Cart</Button>
+            <Link component={RouterLink} className={classes.button} to="/keranjang">
+              CART ({totalHarga})
+            </Link>
+          
             <Button color="primary" variant="outlined" className={classes.button}>
               Login
             </Button>
@@ -65,5 +73,15 @@ class HeaderAppBar extends Component{
 
 }
 
-export default withStyles(styles)(HeaderAppBar);
+function mapStateToProps(state){
+   return {
+      totalHarga:state.cartReducer.totalHarga
+   }
+}
+
+const HeaderAppContainer = connect(mapStateToProps)(HeaderAppBar)
+
+
+
+export default withStyles(styles)(HeaderAppContainer);
 

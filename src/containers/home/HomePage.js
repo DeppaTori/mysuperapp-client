@@ -16,6 +16,8 @@ import { withStyles } from '@material-ui/core/styles';
 import CardMedia from '@material-ui/core/CardMedia';
 import HeaderAppBar from './header/HeaderAppBar'
 import FooterComponent from './footer/FooterComponent'
+import produk_action from '../../actions/produk_action'
+import {connect} from 'react-redux'
 
 const styles = theme => ({
   '@global': {
@@ -163,12 +165,19 @@ class HomePage extends Component{
       this.beliProduk = this.beliProduk.bind(this)
   }
 
-  beliProduk(){
-    this.props.history.push(`/produk`);
+  componentDidMount(){
+    const {dispatch} = this.props;
+    dispatch(produk_action.fetch('no_token'));
+ }
+
+  beliProduk(id){
+    this.props.history.push(`/produk/${id}`);
   }
 
+  
+
   render(){
-    const { classes } = this.props;
+    const { classes,records} = this.props;
 
     return (
       <React.Fragment>
@@ -186,8 +195,8 @@ class HomePage extends Component{
           </div>
           {/* End hero unit */}
           <Grid container spacing={40}>
-              {cards.map(card => (
-                <Grid item key={card} sm={6} md={4} lg={3}>
+              {records.map( (record,k) => (
+                <Grid item key={k} sm={6} md={4} lg={3}>
                   <Card className={classes.card}>
                     <CardMedia
                       className={classes.cardMedia}
@@ -196,17 +205,17 @@ class HomePage extends Component{
                     />
                     <CardContent className={classes.cardContent}>
                       <Typography gutterBottom variant="h5" component="h2">
-                        {card.nama}
-                      </Typography>
-                      <Typography variant="h7" component="h3">
-                      Rp. {card.harga}
+                        {record.nama}
                       </Typography>
                       <Typography>
-                      {card.deskripsi}
+                      Rp. {record.harga}
+                      </Typography>
+                      <Typography>
+                      {record.deskripsi}
                       </Typography>
                     </CardContent>
                     <CardActions>
-                      <Button size="small" color="primary" onClick={e=>this.beliProduk()}>
+                      <Button size="small" color="primary" onClick={e=>this.beliProduk(record._id)}>
                         Beli
                       </Button>
                      
@@ -230,4 +239,12 @@ HomePage.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(HomePage);
+function mapStateToProps(state){
+  return {
+    records: state.produkReducer.records
+  }
+}
+
+const HomePageModule = connect(mapStateToProps)(HomePage)
+
+export default withStyles(styles)(HomePageModule);

@@ -16,7 +16,7 @@ export default class RootWithRouter extends Component {
       <Provider store={store}>
         <Router>
             <Route path="/" exact component={HomePage} />
-            <Route path="/produk" component={DetailPage} />
+            <Route path="/produk/:id" component={DetailPage} />
             <Route path="/simpledata" component={SuperApp} />
             <Route path="/keranjang"  component={KeranjangPage} />
             <Route path="/checkout"  component={CheckoutPage} />

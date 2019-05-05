@@ -21,6 +21,9 @@ import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import {connect} from 'react-redux'
+import {removeProdukFromCart} from '../../actions/cart_action'
+
 
 const styles = theme => ({
   '@global': {
@@ -126,15 +129,25 @@ class KeranjangPage extends Component{
       super(props)
   }
 
+  
+
   handleCheckoutClick(){
     this.props.history.push(`/checkout`);
+  }
+
+  handleHapusClick(produkId){
+ 
+    const {dispatch} = this.props
+    dispatch(removeProdukFromCart(produkId))
   }
 
   
   
   render(){
-    const { classes } = this.props;
-
+    const { classes,produks,totalHarga} = this.props;
+  
+    const produksAr = Object.values(produks);
+    const produksArId = Object.keys(produks);
     return (
       <React.Fragment>
         <CssBaseline />
@@ -153,19 +166,30 @@ class KeranjangPage extends Component{
             <TableCell align="right">Harga</TableCell>
             <TableCell align="right">Jumlah</TableCell>
             <TableCell align="right">Total</TableCell>
+            <TableCell align="right"></TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map(row => (
-            <TableRow key={row.id}>
+          {
+            produksAr.map( (produk,key) => (
+             
+            <TableRow key={key}>
               <TableCell component="th" scope="row">
-                {row.name}
+                {produk.nama}
               </TableCell>
-              <TableCell align="right">{row.calories}</TableCell>
-              <TableCell align="right">{row.fat}</TableCell>
-              <TableCell align="right">{row.carbs}</TableCell>
+              <TableCell align="right">{produk.harga}</TableCell>
+              <TableCell align="right">{produk.jumlah}</TableCell>
+              <TableCell align="right">{produk.harga*produk.jumlah}</TableCell>
+              <TableCell align="center"><Button onClick={e=>this.handleHapusClick(produksArId[key])}>Hapus</Button></TableCell>
             </TableRow>
-          ))}
+          ))
+          }
+          <TableRow>
+             
+              <TableCell colSpan="3" align="right">Total</TableCell>
+              <TableCell align="right">{totalHarga}</TableCell>
+              <TableCell align="right"></TableCell>
+            </TableRow>
         </TableBody>
       </Table>
       <Button variant="contained" color="primary" onClick={e=>this.handleCheckoutClick()}>Checkout</Button>
@@ -187,4 +211,13 @@ KeranjangPage.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(KeranjangPage);
+function mapStateToProps(state){
+  return {
+     produks:state.cartReducer.produks,
+     totalHarga:state.cartReducer.totalHarga
+  }
+}
+
+const KeranjangPageModule = connect(mapStateToProps)(KeranjangPage)
+
+export default withStyles(styles)(KeranjangPageModule);
