@@ -1,4 +1,4 @@
-import React from 'react';
+import React,{Component} from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Typography from '@material-ui/core/Typography';
@@ -6,21 +6,19 @@ import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import Grid from '@material-ui/core/Grid';
+import {connect} from 'react-redux'
 
-const products = [
-  { name: 'Product 1', desc: 'A nice thing', price: '$9.99' },
-  { name: 'Product 2', desc: 'Another thing', price: '$3.45' },
-  { name: 'Product 3', desc: 'Something else', price: '$6.51' },
-  { name: 'Product 4', desc: 'Best thing of all', price: '$14.11' },
-  { name: 'Shipping', desc: '', price: 'Free' },
-];
+// const products = [
+//   { name: 'Product 1', desc: 'A nice thing', price: '$9.99' },
+//   { name: 'Product 2', desc: 'Another thing', price: '$3.45' },
+//   { name: 'Product 3', desc: 'Something else', price: '$6.51' },
+//   { name: 'Product 4', desc: 'Best thing of all', price: '$14.11' },
+//   { name: 'Shipping', desc: '', price: 'Free' },
+// ];
+
+
 const addresses = ['1 Material-UI Drive', 'Reactville', 'Anytown', '99999', 'USA'];
-const payments = [
-  { name: 'Card type', detail: 'Visa' },
-  { name: 'Card holder', detail: 'Mr John Smith' },
-  { name: 'Card number', detail: 'xxxx-xxxx-xxxx-1234' },
-  { name: 'Expiry date', detail: '04/2024' },
-];
+
 
 const styles = theme => ({
   listItem: {
@@ -35,7 +33,19 @@ const styles = theme => ({
 });
 
 function Review(props) {
-  const { classes } = props;
+  const { classes,parentState,produks,totalHarga} = props;
+  const payments = [
+    { name: 'Card type', detail: parentState.paymentMethod.cardNumber>1000?'Visa':'Master Card' },
+    { name: 'Card holder', detail: parentState.paymentMethod.name },
+    { name: 'Card number', detail: parentState.paymentMethod.cardNumber },
+    { name: 'Expiry date', detail: parentState.paymentMethod.expireDate },
+  ];
+  const products = [];
+  const keys = Object.keys(produks);
+  keys.map(key=>{
+    products.push({ name: `${produks[key].nama} x ${produks[key].jumlah}`, desc: produks[key].deskripsi, price:`Rp ${produks[key].harga*produks[key].jumlah}` })
+  })
+  
   return (
     <React.Fragment>
       <Typography variant="h6" gutterBottom>
@@ -51,7 +61,7 @@ function Review(props) {
         <ListItem className={classes.listItem}>
           <ListItemText primary="Total" />
           <Typography variant="subtitle1" className={classes.total}>
-            $34.06
+            Rp. {totalHarga}
           </Typography>
         </ListItem>
       </List>
@@ -60,8 +70,9 @@ function Review(props) {
           <Typography variant="h6" gutterBottom className={classes.title}>
             Shipping
           </Typography>
-          <Typography gutterBottom>John Smith</Typography>
-          <Typography gutterBottom>{addresses.join(', ')}</Typography>
+          <Typography gutterBottom>{parentState.shippingInfo.firstName} {parentState.shippingInfo.lastName}</Typography>
+          <Typography gutterBottom>{parentState.shippingInfo.address1} </Typography>
+          <Typography gutterBottom>{parentState.shippingInfo.address2} </Typography>
         </Grid>
         <Grid item container direction="column" xs={12} sm={6}>
           <Typography variant="h6" gutterBottom className={classes.title}>
@@ -89,4 +100,13 @@ Review.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Review);
+function mapStateToProps(state){
+  return {
+    produks:state.cartReducer.produks,
+    totalHarga:state.cartReducer.totalHarga
+  }
+}
+
+const ReviewContainer = connect(mapStateToProps)(Review)
+
+export default withStyles(styles)(ReviewContainer);

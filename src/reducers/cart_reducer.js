@@ -22,7 +22,8 @@ export default function cartReducer(state={
                 [id]:{
                     jumlah:jml,
                     nama:action.produk.nama,
-                    harga:action.produk.harga
+                    harga:action.produk.harga,
+                    deskripsi:action.produk.deskripsi
                 }
             },
             jumlahProduk:state.jumlahProduk+1,

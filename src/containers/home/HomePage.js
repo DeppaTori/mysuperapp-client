@@ -177,7 +177,7 @@ class HomePage extends Component{
   
 
   render(){
-    const { classes,records} = this.props;
+    const { classes,records,fetching} = this.props;
 
     return (
       <React.Fragment>
@@ -195,34 +195,43 @@ class HomePage extends Component{
           </div>
           {/* End hero unit */}
           <Grid container spacing={40}>
-              {records.map( (record,k) => (
-                <Grid item key={k} sm={6} md={4} lg={3}>
-                  <Card className={classes.card}>
-                    <CardMedia
-                      className={classes.cardMedia}
-                      image={window.location.origin + '/images/no-image.png'}
-                      title="Image title"
-                    />
-                    <CardContent className={classes.cardContent}>
-                      <Typography gutterBottom variant="h5" component="h2">
-                        {record.nama}
-                      </Typography>
-                      <Typography>
-                      Rp. {record.harga}
-                      </Typography>
-                      <Typography>
-                      {record.deskripsi}
-                      </Typography>
-                    </CardContent>
-                    <CardActions>
-                      <Button size="small" color="primary" onClick={e=>this.beliProduk(record._id)}>
-                        Beli
-                      </Button>
-                     
-                    </CardActions>
-                  </Card>
-                </Grid>
-              ))}
+              {
+                  fetching?(
+                    <Typography variant="h6" align="center" color="textSecondary" component="p">
+                    Loading...
+                  </Typography>
+                ):(
+                  records.map( (record,k) => (
+                    <Grid item key={k} sm={6} md={4} lg={3}>
+                      <Card className={classes.card}>
+                        <CardMedia
+                          className={classes.cardMedia}
+                          image={window.location.origin + '/images/no-image.png'}
+                          title="Image title"
+                        />
+                        <CardContent className={classes.cardContent}>
+                          <Typography gutterBottom variant="h5" component="h2">
+                            {record.nama}
+                          </Typography>
+                          <Typography>
+                          Rp. {record.harga}
+                          </Typography>
+                          <Typography>
+                          {record.deskripsi}
+                          </Typography>
+                        </CardContent>
+                        <CardActions>
+                          <Button size="small" color="primary" onClick={e=>this.beliProduk(record._id)}>
+                            Beli
+                          </Button>
+                         
+                        </CardActions>
+                      </Card>
+                    </Grid>
+                  ))
+                )
+              }
+              
             </Grid>
         </main>
         
@@ -241,7 +250,8 @@ HomePage.propTypes = {
 
 function mapStateToProps(state){
   return {
-    records: state.produkReducer.records
+    records: state.produkReducer.records,
+    fetching:state.produkReducer.fetching
   }
 }
 

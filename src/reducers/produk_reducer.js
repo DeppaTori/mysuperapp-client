@@ -5,7 +5,8 @@ export default function produkReducer(state={
     record:{},
     affectedRecord:null,
     successSave:false,
-    afterRequestDelete:false
+    afterRequestDelete:false,
+    fetching:false
 },action){
     return actionSwitcher('PRODUK',state,action)
 }

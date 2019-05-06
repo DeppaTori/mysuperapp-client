@@ -6,7 +6,8 @@ export function actionSwitcher(name,state,action){
     if(action.type===`${name}_RECEIVE`){
         return {
             ...state,
-            records:action.data
+            records:action.data,
+            fetching:false
         }
     }else if(action.type===`${name}_SAVE_RECEIVE`){
         return {
@@ -56,7 +57,14 @@ export function actionSwitcher(name,state,action){
     else if(action.type===`${name}_RESP500_RECEIVE`){
         return {
           ...state,
-          receivedResponse500:true
+          receivedResponse500:true,
+          fetching:false
+        }
+    }
+    else if(action.type===`${name}_FETCHING`){
+        return {
+          ...state,
+          fetching:true
         }
     }
 
@@ -124,6 +132,12 @@ function actionReceiveResp500(name){
     }
 }
 
+function actionFetching(name){
+    return {
+        type:`${name}_FETCHING`
+    }
+}
+
 
 
 
@@ -143,9 +157,12 @@ export function CRUDOffDelete(name){
 export function CRUDRead(token,pathUrl,name) {
 
     axios.defaults.headers.common = {'Authorization': `Bearer ${token}`}
+
+   
  
     return dispatch => {
- 
+        dispatch(actionFetching(name))
+
         return axios.get(`${API_URL}${pathUrl}`)
         .then(response => response.data)
         .then((json) =>dispatch(actionReceive(name,json)))

@@ -15,6 +15,8 @@ import FormPembayaran from './checkout/FormPembayaran';
 import Review from './checkout/Review';
 import HeaderAppBar from './header/HeaderAppBar';
 import FooterComponent from './footer/FooterComponent';
+import {addShippingInfo} from '../../actions/shipping_action'
+import {connect} from 'react-redux'
 
 const styles = theme => ({
   appBar: {
@@ -55,14 +57,14 @@ const styles = theme => ({
 
 const steps = ['Shipping address', 'Payment details', 'Review your order'];
 
-function getStepContent(step) {
+function getStepContent(step,parentState,onEdit) {
   switch (step) {
     case 0:
-      return <FormAlamat />;
+      return <FormAlamat parentState={parentState} onEdit={onEdit} stateName="shippingInfo" />;
     case 1:
-      return <FormPembayaran />;
+      return <FormPembayaran parentState={parentState} onEdit={onEdit} stateName="paymentMethod" />;
     case 2:
-      return <Review />;
+      return <Review parentState={parentState}  />;
     default:
       throw new Error('Unknown step');
   }
@@ -71,12 +73,41 @@ function getStepContent(step) {
 class Checkout extends React.Component {
   state = {
     activeStep: 0,
+    shippingInfo:{
+      firstName:'',
+      lastName:'',
+      address1:'',
+      address2:'',
+      city:'',
+      province:'',
+      postalCode:'',
+      country:''
+  },
+    paymentMethod:{
+      name:'',
+      cardNumber:'',
+      expireDate:'',
+      cvv:''
+    }
   };
 
+  onEdit = (name,value,stateName)=>{
+    this.setState({
+      [stateName]:{
+        ...this.state[stateName],
+        [name]:value
+      }
+    })
+  }
+
   handleNext = () => {
+    const {dispatch} = this.props
     this.setState(state => ({
       activeStep: state.activeStep + 1,
     }));
+
+    console.log(this.state.shippingInfo);
+    dispatch(addShippingInfo(this.state.shippingInfo))
   };
 
   handleBack = () => {
@@ -124,7 +155,7 @@ class Checkout extends React.Component {
                 </React.Fragment>
               ) : (
                 <React.Fragment>
-                  {getStepContent(activeStep)}
+                  {getStepContent(activeStep,this.state,this.onEdit)}
                   <div className={classes.buttons}>
                     {activeStep !== 0 && (
                       <Button onClick={this.handleBack} className={classes.button}>
@@ -155,4 +186,6 @@ Checkout.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Checkout);
+const CheckoutContainer = connect()(Checkout)
+
+export default withStyles(styles)(CheckoutContainer);
