@@ -192,8 +192,12 @@ class KeranjangPage extends Component{
             </TableRow>
         </TableBody>
       </Table>
-      <Button variant="contained" color="primary" onClick={e=>this.handleCheckoutClick()}>Checkout</Button>
-            
+          {totalHarga > 0 ? 
+          (  <Button variant="contained" color="primary" onClick={e=>this.handleCheckoutClick()}>Checkout</Button>
+          ):
+          (  <div></div> ) 
+          }
+         
           </Paper>
 
         </main>

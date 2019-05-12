@@ -12,11 +12,14 @@ import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import FormAlamat from './checkout/FormAlamat';
 import FormPembayaran from './checkout/FormPembayaran';
+import FormKonsumen from './checkout/FormKonsumen';
 import Review from './checkout/Review';
 import HeaderAppBar from './header/HeaderAppBar';
 import FooterComponent from './footer/FooterComponent';
 import {addShippingInfo} from '../../actions/shipping_action'
 import {connect} from 'react-redux'
+import { Redirect } from 'react-router-dom'
+import {submitOrder} from '../../actions/checkout_action'
 
 const styles = theme => ({
   appBar: {
@@ -55,16 +58,19 @@ const styles = theme => ({
   },
 });
 
-const steps = ['Shipping address', 'Payment details', 'Review your order'];
+const steps = ['Customer Information','Shipping address', 'Payment details', 'Review your order'];
 
 function getStepContent(step,parentState,onEdit) {
   switch (step) {
     case 0:
-      return <FormAlamat parentState={parentState} onEdit={onEdit} stateName="shippingInfo" />;
+      return <FormKonsumen parentState={parentState} onEdit={onEdit} stateName="informasiKonsumen" />;
     case 1:
-      return <FormPembayaran parentState={parentState} onEdit={onEdit} stateName="paymentMethod" />;
+      return <FormAlamat parentState={parentState} onEdit={onEdit} stateName="shippingInfo" />;
     case 2:
+      return <FormPembayaran parentState={parentState} onEdit={onEdit} stateName="paymentMethod" />;
+    case 3:
       return <Review parentState={parentState}  />;
+    
     default:
       throw new Error('Unknown step');
   }
@@ -73,6 +79,11 @@ function getStepContent(step,parentState,onEdit) {
 class Checkout extends React.Component {
   state = {
     activeStep: 0,
+    informasiKonsumen:{
+      firstName:'',
+      lastName:'',
+      email:'',
+  },
     shippingInfo:{
       firstName:'',
       lastName:'',
@@ -105,9 +116,16 @@ class Checkout extends React.Component {
     this.setState(state => ({
       activeStep: state.activeStep + 1,
     }));
-
-    console.log(this.state.shippingInfo);
+  
     dispatch(addShippingInfo(this.state.shippingInfo))
+
+    if(this.state.activeStep===steps.length-1){
+      console.log("place order")
+      this.handlePlaceOrder()
+    }else{
+      // console.log("not yet")
+      // console.log(this.state.activeStep)
+    }
   };
 
   handleBack = () => {
@@ -122,9 +140,57 @@ class Checkout extends React.Component {
     });
   };
 
+  handlePlaceOrder(){
+     const {dispatch,produks} = this.props
+     const purchase = {
+        customer:{
+
+          firstName: this.state.informasiKonsumen.firstName,
+          lastName: this.state.informasiKonsumen.lastName,
+          email:this.state.informasiKonsumen.email,
+          phoneNumber: "00000000000",
+          address1: this.state.shippingInfo.address1,
+          address2: this.state.shippingInfo.address2,
+          province: 3,
+          city: 1,
+          country: 2
+        },
+        purchaseDetails:[]
+        // purchaseDetails:[
+        //   {
+          
+        //     jumlah:213,
+        //     produk:{
+        //       _id:"5cd16a4d53be02435c4957a5"
+        //     }
+        //   }  
+        // ]
+     };
+
+    
+     const keys = Object.keys(produks);
+     keys.map(key=>{
+      purchase.purchaseDetails.push({
+        jumlah:produks[key].jumlah,
+        produk:{
+          _id:key
+        }
+  })
+     })
+
+     
+
+     dispatch(submitOrder(purchase));
+
+  }
+
   render() {
-    const { classes } = this.props;
+    const { classes,totalHarga,orderFetching,purchaseNo} = this.props;
     const { activeStep } = this.state;
+
+    if(totalHarga <= 0){
+      return <Redirect to='/' />
+    }
 
     return (
       <React.Fragment>
@@ -144,15 +210,35 @@ class Checkout extends React.Component {
             </Stepper>
             <React.Fragment>
               {activeStep === steps.length ? (
-                <React.Fragment>
-                  <Typography variant="h5" gutterBottom>
-                    Thank you for your order.
-                  </Typography>
+                [ orderFetching ? (
+                  <React.Fragment>
+             
                   <Typography variant="subtitle1">
-                    Your order number is #2001539. We have emailed your order confirmation, and will
-                    send you an update when your order has shipped.
+                    Please wait, processing your order...
                   </Typography>
                 </React.Fragment>
+                ): (
+                  [
+                    purchaseNo?(
+                      <React.Fragment>
+                      <Typography variant="h5" gutterBottom>
+                        Thank you for your order.
+                      </Typography>
+                      <Typography variant="subtitle1">
+                        Your order number is #{purchaseNo}. We have emailed your order confirmation, and will
+                        send you an update when your order has shipped.
+                      </Typography>
+                    </React.Fragment>
+                    ):(
+                      <React.Fragment>
+                   
+                      <Typography variant="subtitle1">
+                        Something error when processing your order. :(
+                      </Typography>
+                    </React.Fragment>
+                    )
+                  ]
+                )]
               ) : (
                 <React.Fragment>
                   {getStepContent(activeStep,this.state,this.onEdit)}
@@ -184,8 +270,18 @@ class Checkout extends React.Component {
 
 Checkout.propTypes = {
   classes: PropTypes.object.isRequired,
+  
 };
 
-const CheckoutContainer = connect()(Checkout)
+function mapStateToProps(state){
+  return {
+    totalHarga:state.cartReducer.totalHarga,
+    orderFetching:state.checkoutReducer.fetching,
+    purchaseNo:state.checkoutReducer.purchase.purchaseNo,
+    produks:state.cartReducer.produks
+  }
+}
+
+const CheckoutContainer = connect(mapStateToProps)(Checkout)
 
 export default withStyles(styles)(CheckoutContainer);

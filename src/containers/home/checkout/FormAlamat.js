@@ -25,6 +25,9 @@ class FormAlamat extends Component {
   componentDidMount(){
     const {parentState} = this.props
     const {shippingInfo} = parentState
+    const {informasiKonsumen} = parentState
+    shippingInfo.firstName = informasiKonsumen.firstName;
+    shippingInfo.lastName = informasiKonsumen.lastName;
     const newState = Object.assign(this.state,shippingInfo)
     this.setState(newState)
   }
