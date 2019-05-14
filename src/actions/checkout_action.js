@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {API_URL} from '../config/Config'
+import {CART_CLEAN} from './cart_action'
 
 export const CHECKOUT_RECEIVE_ORDER = 'CHECKOUT_SUBMIT_RECEIVE'
 export const CHECKOUT_FETCH_SUBMIT_ORDER = 'CHECKOUT_FETCH_SUBMIT_ORDER'
@@ -25,6 +26,12 @@ function actionErrorReceive(response){
     }
 }
 
+function cleanCart(){
+    return {
+        type:CART_CLEAN
+    }
+}
+
 export function submitOrder(purchase) {
 
     // axios.defaults.headers.common = {'Authorization': `Bearer ${token}`}
@@ -36,7 +43,10 @@ export function submitOrder(purchase) {
 
         return axios.post(`${API_URL}/api/v2/purchases/save-with-embedded`,purchase)
         .then(response => response.data)
-        .then((json) =>dispatch(actionReceivceOrder(json)))
+        .then((json) =>{
+            dispatch(actionReceivceOrder(json))
+            dispatch(cleanCart())
+        })
         .catch( (error) => dispatch(actionErrorReceive(error.response)) )
     }
     

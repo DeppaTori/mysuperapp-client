@@ -181,6 +181,7 @@ class Checkout extends React.Component {
      
 
      dispatch(submitOrder(purchase));
+     this.props.history.push(`/purchase`);
 
   }
 
@@ -210,35 +211,14 @@ class Checkout extends React.Component {
             </Stepper>
             <React.Fragment>
               {activeStep === steps.length ? (
-                [ orderFetching ? (
+            
                   <React.Fragment>
              
                   <Typography variant="subtitle1">
                     Please wait, processing your order...
                   </Typography>
                 </React.Fragment>
-                ): (
-                  [
-                    purchaseNo?(
-                      <React.Fragment>
-                      <Typography variant="h5" gutterBottom>
-                        Thank you for your order.
-                      </Typography>
-                      <Typography variant="subtitle1">
-                        Your order number is #{purchaseNo}. We have emailed your order confirmation, and will
-                        send you an update when your order has shipped.
-                      </Typography>
-                    </React.Fragment>
-                    ):(
-                      <React.Fragment>
-                   
-                      <Typography variant="subtitle1">
-                        Something error when processing your order. :(
-                      </Typography>
-                    </React.Fragment>
-                    )
-                  ]
-                )]
+               
               ) : (
                 <React.Fragment>
                   {getStepContent(activeStep,this.state,this.onEdit)}

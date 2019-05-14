@@ -1,4 +1,4 @@
-import {CART_ADD_PRODUK,CART_REMOVE_PRODUK} from '../actions/cart_action'
+import {CART_ADD_PRODUK,CART_REMOVE_PRODUK,CART_CLEAN} from '../actions/cart_action'
 
 export default function cartReducer(state={
     produks:{},
@@ -52,6 +52,17 @@ export default function cartReducer(state={
 
         
     }
+
+    if(action.type===CART_CLEAN){
+
+            return {
+                ...state,
+                produks:{},
+                jumlahProduk:0,
+                totalHarga:0.0
+            }
+    }
+
 
     return state
 }

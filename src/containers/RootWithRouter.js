@@ -7,6 +7,7 @@ import HomePage from './home/HomePage'
 import DetailPage from './home/DetailPage'
 import KeranjangPage from './home/KeranjangPage'
 import CheckoutPage from './home/CheckoutPage'
+import PurchasePage from './home/PurchasePage'
 
 const store = configureStore()
 
@@ -20,6 +21,7 @@ export default class RootWithRouter extends Component {
             <Route path="/simpledata" component={SuperApp} />
             <Route path="/keranjang"  component={KeranjangPage} />
             <Route path="/checkout"  component={CheckoutPage} />
+            <Route path="/purchase"  component={PurchasePage} />
         </Router>
        
       </Provider>
